@@ -32,7 +32,7 @@ namespace SE130ApiTestProject.Services
 		{
 			try
 			{
-				var student = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
+				var student = await _db.Students.Include(x => x.Lectors).FirstOrDefaultAsync(x => x.Id == id);
 				if (student == null)
 					return new() { Success = false, Message = "Student not found" };
 				return new() { Success = true, Data = student };
@@ -50,10 +50,14 @@ namespace SE130ApiTestProject.Services
 				if (existingstudent != null)
 					return new() { Success = false, Message = "Student with the same email already exists" };
 
-				var lector = await _db.Lectors.FirstOrDefaultAsync(x => x.Id == model.LectorId);
-				if (lector == null) return new() { Success = false, Message = "Lector you try to assign to student doesnt exist" };
-
 				var student = _mapper.Map<Student>(model);
+
+				if (model.LectorIds != null)
+				{
+					var lectors = await _db.Lectors.Where(x => model.LectorIds.Contains(x.Id)).ToListAsync();
+					student.Lectors = lectors;
+				}
+
 				await _db.Students.AddAsync(student);
 				await _db.SaveChangesAsync();
 
@@ -68,13 +72,18 @@ namespace SE130ApiTestProject.Services
 		{
 			try
 			{
-				var studentToEdit = await _db.Students.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
+				var studentToEdit = await _db.Students.Include(x => x.Lectors).FirstOrDefaultAsync(x => x.Id == model.Id);
 				if (studentToEdit == null) return new() { Success = false, Message = "Student not found" };
 
-				var lector = await _db.Lectors.FirstOrDefaultAsync(x => x.Id == model.LectorId);
-				if (lector == null) return new() { Success = false, Message = "Lector you try to assign to student doesnt exist" };
+				_mapper.Map(model,studentToEdit);
 
-				_db.Students.Update(_mapper.Map<Student>(model));
+				if(model.LectorIds != null)
+				{
+					var lectors = await _db.Lectors.Where(x => model.LectorIds.Contains(x.Id)).ToListAsync();
+					studentToEdit.Lectors = lectors;
+				}
+
+				_db.Students.Update(studentToEdit);
 				await _db.SaveChangesAsync();
 				return new() { Success = true };
 			}

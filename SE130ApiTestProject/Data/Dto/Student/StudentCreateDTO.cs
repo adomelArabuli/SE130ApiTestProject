@@ -8,6 +8,6 @@
 		public bool IsMale { get; set; }
 		public string PhoneNumber { get; set; }
 		public string Email { get; set; }
-		public int LectorId { get; set; }
+		public ICollection<int>? LectorIds { get; set; }
 	}
 }
