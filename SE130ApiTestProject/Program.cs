@@ -27,6 +27,7 @@ namespace SE130ApiTestProject
 
 			builder.Services.AddScoped<IStudentService, StudentService>();
 			builder.Services.AddScoped<ILectorService, LectorService>();
+			builder.Services.AddScoped<IAuthService, AuthService>();
 
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
