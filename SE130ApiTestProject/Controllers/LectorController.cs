@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SE130ApiTestProject.Data;
 using SE130ApiTestProject.Data.Dto.Lector;
@@ -9,6 +10,7 @@ namespace SE130ApiTestProject.Controllers
 {
     [Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class LectorController : ControllerBase
 	{
 		private readonly ILectorService _lectorService;
@@ -63,6 +65,7 @@ namespace SE130ApiTestProject.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<ServiceResponse<Lector>>> DeleteLectorAsync(int id)
 		{
 			var result = await _lectorService.DeleteLectorAsync(id);

@@ -52,7 +52,7 @@ namespace SE130ApiTestProject.Services
 		{
 			var response = new ServiceResponse<string>();
 
-			var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName.ToLower() == model.UserName.ToLower());
+			var user = await _db.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.UserName.ToLower() == model.UserName.ToLower());
 
 			if(user is null)
 			{
@@ -66,7 +66,7 @@ namespace SE130ApiTestProject.Services
 			}
 			else
 			{
-				response.Data = GenerateAccessToken(user);
+				response.Data = await GenerateAccessToken(user);
 			}
 
 			return response;
@@ -99,13 +99,21 @@ namespace SE130ApiTestProject.Services
 			}
 		}
 			 
-		private string GenerateAccessToken(User user)
+		private async Task<string> GenerateAccessToken(User user)
 		{
+			var rolesIds = user.Roles.Select(x => x.Id);
+			var roleNames = await _db.Roles.Where(x => rolesIds.Contains(x.Id)).Select(x => x.Name).ToListAsync();
+
 			List<Claim> claims = new List<Claim>()
 			{
 				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 				new Claim(ClaimTypes.NameIdentifier, user.UserName)
 			};
+
+			foreach (var roleName in roleNames)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, roleName));
+			}
 
 			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8
 				.GetBytes(_configuration.GetSection("Token:Secret").Value));

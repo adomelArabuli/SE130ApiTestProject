@@ -10,5 +10,6 @@ namespace SE130ApiTestProject.Data
 		public DbSet<Student> Students { get; set; }
 		public DbSet<Lector> Lectors { get; set; }
 		public DbSet<User> Users { get; set; }
+		public DbSet<Role> Roles { get; set; }
     }
 }

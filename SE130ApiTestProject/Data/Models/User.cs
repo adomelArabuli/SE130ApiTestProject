@@ -7,6 +7,7 @@
 		public byte[] PasswordHash { get; set; }
 		public byte[] PasswordSalt { get; set; }
         public string? RefreshToken { get; set; }
+		public ICollection<Role> Roles { get; set; }
 
     }
 }
